@@ -1,4 +1,4 @@
-package com.Backend;
+package com.ServerSide;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -44,11 +44,14 @@ public class Server {
 				Map<String,String > map=gson.fromJson(json, Map.class);
 				Room r1=new Room((long)(Math.random()*1e18));
 				while(!rooms.contains(r1)) {
-					r1.setjCode((long)(Math.random()*1e18));
+					r1.setuCode((long)(Math.random()*1e18));
 				}
-				rooms.add(r1);
+				synchronized(rooms)
+			    {
+					rooms.add(r1);
+			    }
 				rcode=200;
-				message="Room Create. Enter code "+r1.jCode+" to enter room.";
+				message="Room Create. Enter code "+r1.uCode+" to enter room.";
     		}
     		catch(IOException e) {
     			rcode=400;
@@ -68,4 +71,14 @@ public class Server {
     		System.out.println("Room Created");
 		}
      }
+	@SuppressWarnings("restriction")
+	static class MessageReciever implements HttpHandler{
+		public void handle(HttpExchange t) throws IOException {
+			String json=new String(ByteStreams.toByteArray(t.getRequestBody()));
+			Gson gson=new Gson();
+			Map<String , String > map=gson.fromJson(json, Map.class);
+			
+		}
+		
+	}
 }
